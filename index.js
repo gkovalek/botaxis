@@ -1,4 +1,3 @@
-// index.js
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
@@ -15,7 +14,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/whatsapp", async (req, res) => {
-  const { message } = req.body;
+  const userMessage = req.body.message;
 
   try {
     const response = await axios.post(
@@ -25,7 +24,7 @@ app.post("/whatsapp", async (req, res) => {
         messages: [
           {
             role: "user",
-            content: message,
+            content: userMessage,
           },
         ],
         temperature: 0.7,
@@ -38,10 +37,12 @@ app.post("/whatsapp", async (req, res) => {
       }
     );
 
-    res.json({ reply: response.data.choices[0].message.content });
+    res.json({ response: response.data.choices[0].message.content });
   } catch (error) {
-    console.error("Error al consultar OpenAI:", error.message);
-    res.status(500).json({ error: "Lo siento, hubo un error al procesar tu mensaje." });
+    console.error("❌ Error al consultar OpenAI:", error.response?.data || error.message);
+    res.status(500).json({
+      error: "Lo siento, hubo un error al procesar tu mensaje.",
+    });
   }
 });
 
